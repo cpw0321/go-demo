@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/hex"
-	"fmt"
 	"go-demo/bitcoin/pkg/btcapi/mempool"
 	"log"
 
@@ -32,8 +31,7 @@ func main() {
 	// txscript.ComputeTaprootKeyNoScript 注意
 	sourceAddrPubKey, err := btcutil.NewAddressTaproot(schnorr.SerializePubKey(txscript.ComputeTaprootKeyNoScript(privateKey01.PubKey())), netParams)
 	if err != nil {
-		fmt.Println("0000000:", err)
-		return
+		log.Fatal("NewAddressTaproot err:", err)
 	}
 	log.Println("sourceAddress:", sourceAddrPubKey.EncodeAddress())
 	sourceAddr, err := btcutil.DecodeAddress(sourceAddrPubKey.EncodeAddress(), &chaincfg.SigNetParams)
@@ -101,6 +99,18 @@ func main() {
 			log.Fatal("TaprootWitnessSignature err:", err)
 		}
 		v.Witness = witness
+
+		//witnessArray, err := txscript.CalcTaprootSignatureHash(sigHashes,
+		//	txscript.SigHashDefault, tx, 0, prevOutputFetcher)
+		//if err != nil {
+		//	log.Fatal("CalcTapscriptSignaturehash err:", err)
+		//}
+		//privKeyTweak := txscript.TweakTaprootPrivKey(*privateKey01, []byte{})
+		//signature, err := schnorr.Sign(privKeyTweak, witnessArray)
+		//if err != nil {
+		//	log.Fatal("sign err:", err)
+		//}
+		//v.Witness = wire.TxWitness{signature.Serialize()}
 	}
 
 	txHash, err := btcApiClient.BroadcastTx(tx)
