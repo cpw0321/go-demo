@@ -86,15 +86,21 @@ func main() {
 	}
 
 	for k, v := range tx.TxIn {
+		msgTx, err := btcApiClient.GetRawTransaction(&v.PreviousOutPoint.Hash)
+		if err != nil {
+			log.Fatal("GetRawTransaction err:", err)
+		}
+		pkScript := msgTx.TxOut[v.PreviousOutPoint.Index].PkScript
+		value := msgTx.TxOut[v.PreviousOutPoint.Index].Value
 		prevOutputFetcher := txscript.NewMultiPrevOutFetcher(map[wire.OutPoint]*wire.TxOut{
-			*unspentList[0].Outpoint: {
-				PkScript: unspentList[0].Output.PkScript,
-				Value:    unspentList[0].Output.Value,
+			v.PreviousOutPoint: {
+				PkScript: pkScript,
+				Value:    value,
 			},
 		})
 		sigHashes := txscript.NewTxSigHashes(tx, prevOutputFetcher)
 		witness, err := txscript.TaprootWitnessSignature(tx, sigHashes,
-			k, unspentList[k].Output.Value, unspentList[0].Output.PkScript, txscript.SigHashDefault, privateKey01)
+			k, value, pkScript, txscript.SigHashDefault, privateKey01)
 		if err != nil {
 			log.Fatal("TaprootWitnessSignature err:", err)
 		}
