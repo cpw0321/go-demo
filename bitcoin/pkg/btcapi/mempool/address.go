@@ -3,12 +3,14 @@ package mempool
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/btcsuite/btcd/btcutil"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/txscript"
-	"github.com/btcsuite/btcd/wire"
 	"go-demo/bitcoin/pkg/btcapi"
 	"net/http"
+
+	"github.com/btcsuite/btcd/txscript"
+
+	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/btcsuite/btcd/wire"
 )
 
 type UTXO struct {
