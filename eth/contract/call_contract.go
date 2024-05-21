@@ -8,6 +8,7 @@ import (
 	"log"
 	"math/big"
 	"os"
+	"strconv"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -20,8 +21,8 @@ import (
 
 // todo test
 const (
-	PRIVATE_KEY_TEST01 = "8833e01ffbb75785ed8bc0fb0f1154aaa162e03deaad61f003d98c2c3cd8aee6"
-	RPC_URL            = "https://yolo-winter-breeze.ethereum-goerli.quiknode.pro/"
+	PRIVATE_KEY_TEST01 = "8805596b3d1291fa5264d84554bc92670971f0560cab7762df62b2cb904ba404"
+	RPC_URL            = "https://haven-rpc.bsquared.network"
 )
 
 func main() {
@@ -31,7 +32,7 @@ func main() {
 		log.Fatal("eth prc dial err: ", err)
 	}
 	// 合约地址
-	contractAddressStr := ""
+	contractAddressStr := "0x8449ea3a703D8C38F3F02D48348bA46237E9c240"
 	contractAddress := common.HexToAddress(contractAddressStr)
 	// 创建发送交易的账户
 	privateKey, err := crypto.HexToECDSA(PRIVATE_KEY_TEST01)
@@ -56,7 +57,7 @@ func main() {
 		log.Fatal("get gasPrice err:", err)
 	}
 
-	abiByte, _ := os.ReadFile("./abi.json")
+	abiByte, _ := os.ReadFile("/Users/zhigui/code/gopath/src/cpw/go-demo/eth/contract/abi.json")
 	// 构造方法调用数据
 	contractAbi, err := abi.JSON(bytes.NewReader(abiByte))
 	if err != nil {
@@ -68,9 +69,19 @@ func main() {
 	value := [32]byte{}
 	copy(value[:], "0669270c2e09ae4f35224e13f63601348573c1a2b1c69d3cebd6beec80b65098")
 
-	amount, _ := new(big.Int).SetString("100000000", 10)
-	toAddress := "0xa1CEF929b4B9bc780790dfD87430d119AeD61DD0"
-	data, err := contractAbi.Pack("deposit", value, common.HexToAddress(toAddress), amount)
+	//amount, _ := new(big.Int).SetString("100000000", 10)
+	tokenIds := []string{"30"} // 替换为你要传递的tokenIds
+	// 将tokenIds转换为abi.Value
+	tokenIdsSlice := make([]*big.Int, len(tokenIds))
+	for i, str := range tokenIds {
+		uintVal, err := strconv.ParseUint(str, 10, 64)
+		if err != nil {
+
+		}
+		tokenIdsSlice[i] = big.NewInt(int64(uintVal))
+	}
+	toAddress := "0x756A6aa43547fA8cCF02ab417E6c4c4747137346"
+	data, err := contractAbi.Pack("release", common.HexToAddress(toAddress), tokenIdsSlice)
 	if err != nil {
 		log.Fatal("contractAbi.Pack error:", err)
 	}
