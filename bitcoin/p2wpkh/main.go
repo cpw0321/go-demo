@@ -14,12 +14,13 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 )
 
+// testnet: e2b3f63126b7806314fd742ed3023ae85c157f11ca5cd72e8fa7e07c21ec61cb
 // https://mempool.space/zh/signet/tx/e900e56f241ad55f57e790b39472d22b7abac3fb05e1e388be90057eedd6d3cf?showFlow=false#flow
 func main() {
-	destAddress := "mtzz8i68GchHyfWYso9j2PFjGCC3t9rC3H"
+	destAddress := "muGFcyjuyURJJsXaLXHCm43jLBmGPPU7ME"
 	var amount int64 = 1000
 
-	netParams := &chaincfg.SigNetParams
+	netParams := &chaincfg.TestNet3Params
 	btcApiClient := mempool.NewClient(netParams)
 
 	privateKeyHex01 := "7e3503d37b624a541815ce378f00f5ba01914708d9c8572ddc7057cc649659de"
@@ -27,12 +28,12 @@ func main() {
 	privateKey01, publicKey01 := btcec.PrivKeyFromBytes(privateKeyByte01)
 
 	pubKeyHash := btcutil.Hash160(publicKey01.SerializeCompressed())
-	sourceAddrPubKeyHash, err := btcutil.NewAddressWitnessPubKeyHash(pubKeyHash, &chaincfg.SigNetParams)
+	sourceAddrPubKeyHash, err := btcutil.NewAddressWitnessPubKeyHash(pubKeyHash, &chaincfg.TestNet3Params)
 	if err != nil {
 		log.Fatal("NewAddressWitnessPubKeyHash:", err)
 	}
 	log.Println("sourceAddress:", sourceAddrPubKeyHash.EncodeAddress())
-	sourceAddr, err := btcutil.DecodeAddress(sourceAddrPubKeyHash.EncodeAddress(), &chaincfg.SigNetParams)
+	sourceAddr, err := btcutil.DecodeAddress(sourceAddrPubKeyHash.EncodeAddress(), &chaincfg.TestNet3Params)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -51,14 +52,10 @@ func main() {
 		txIn := wire.NewTxIn(v.Outpoint, nil, nil)
 		tx.AddTxIn(txIn)
 		totalSenderAmount += v.Output.Value
-		// 钱够了就不继续计算了
-		if totalSenderAmount > amount {
-			break
-		}
 	}
 
 	// 获取目标地址的比特币脚本
-	destAddr, err := btcutil.DecodeAddress(destAddress, &chaincfg.SigNetParams)
+	destAddr, err := btcutil.DecodeAddress(destAddress, &chaincfg.TestNet3Params)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -68,7 +65,7 @@ func main() {
 	}
 
 	// 计算总金额和交易费用
-	var fee int64 = 1000
+	var fee int64 = 8000
 	changeAmount := totalSenderAmount - amount - fee // 减去交易费用，转账2000
 
 	// 添加目标地址作为交易输出
@@ -88,7 +85,7 @@ func main() {
 			unspentList[k].Output.PkScript, unspentList[k].Output.Value,
 		)
 		sighashes := txscript.NewTxSigHashes(tx, prevOutputFetcher)
-		sig01, err := txscript.RawTxInWitnessSignature(tx, sighashes, 0, unspentList[k].Output.Value, unspentList[k].Output.PkScript, txscript.SigHashAll, privateKey01)
+		sig01, err := txscript.RawTxInWitnessSignature(tx, sighashes, k, unspentList[k].Output.Value, unspentList[k].Output.PkScript, txscript.SigHashAll, privateKey01)
 		if err != nil {
 			log.Fatal("RawTxInWitnessSignature err:", err)
 		}
