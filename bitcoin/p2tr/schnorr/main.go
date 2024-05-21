@@ -16,6 +16,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 )
 
+// https://mempool.space/zh/signet/tx/5c98ad9ac0c42e5150d71d5225beb8a83e80c222322559dbb1bd0cd5ff1932c3
 func main() {
 	destAddress := "mtzz8i68GchHyfWYso9j2PFjGCC3t9rC3H"
 	var amount int64 = 1000
